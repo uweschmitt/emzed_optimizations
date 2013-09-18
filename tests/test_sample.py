@@ -33,6 +33,9 @@ def test_chromatogram():
 
     rtmin = pm.spectra[0].rt
     rtmax = pm.spectra[-1].rt
+    mzmin = min(min(s.peaks[:, 0]) for s in pm.spectra)
+    mzmax = max(max(s.peaks[:, 0]) for s in pm.spectra)
+
 
     rts, chromo = chromatogram(pm, 0, 0, 0, 0, 1)
     assert len(rts) == 0
@@ -49,9 +52,6 @@ def test_chromatogram():
     rts, chromo = chromatogram(pm, 0, 1000, rtmax, rtmax, 1)
     assert len(rts) == 1
     assert len(chromo) == 1
-
-    mzmin = min(min(s.peaks[:, 0]) for s in pm.spectra)
-    mzmax = max(max(s.peaks[:, 0]) for s in pm.spectra)
 
     rts, chromo = chromatogram(pm, mzmin - 1e-5, mzmin - 1e-5, rtmin, rtmax, 1)
     assert len(rts) == 3042
@@ -117,3 +117,44 @@ def test_sample():
 
     diff = np.max(np.abs(img_optim - img_py))
     assert diff == 0.0, diff
+
+
+
+"""
+@profile
+def sample_mz_python():
+    pm = _load()
+    rtmin = pm.spectra[0].rt
+    rtmax = pm.spectra[-1].rt
+    mzmin = min(min(s.peaks[:, 0]) for s in pm.spectra)
+    mzmax = max(max(s.peaks[:, 0]) for s in pm.spectra)
+
+    spectra = pm.spectra
+    spectra = [s for s in spectra if s.msLevel == 1]
+    spectra = [ s for s in spectra if rtmin <= s.rt ]
+    spectra = [ s for s in spectra if rtmax >= s.rt ]
+
+    for s in spectra:
+        mzs = s.peaks[:,0]
+        imin = mzs.searchsorted(mzmin)
+        imax = mzs.searchsorted(mzmax, side='right')
+        s.peaks = s.peaks[imin:imax]
+
+    return np.vstack([s.peaks for s in spectra])
+
+@profile
+def test_sample_mz_peaks():
+    pm = _load()
+    rtmin = pm.spectra[0].rt
+    rtmax = pm.spectra[-1].rt
+    mzmin = min(min(s.peaks[:, 0]) for s in pm.spectra)
+    mzmax = max(max(s.peaks[:, 0]) for s in pm.spectra)
+
+    all_peaks = sample_mz_peaks(pm, rtmin, rtmax, mzmin, mzmax)
+    assert all_peaks.shape == (798730, 2), all_peaks.shape
+
+sample_mz_python()
+test_sample_mz_peaks()
+
+"""
+
