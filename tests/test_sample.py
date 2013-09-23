@@ -1,6 +1,11 @@
 import numpy as np
-from emzed_optimizations import chromatogram, sample_image
+from emzed_optimizations import chromatogram, sample_image, sample_peaks
 import cPickle
+
+try:
+    profile
+except:
+    profile = lambda x: x
 
 
 def _load():
@@ -119,6 +124,31 @@ def test_sample():
     assert diff == 0.0, diff
 
 
+@profile
+def test_sample_peaks():
+    pm = _load()
+    rtmin = pm.spectra[0].rt
+    rtmax = pm.spectra[-1].rt
+    mzmin = min(min(s.peaks[:, 0]) for s in pm.spectra)
+    mzmax = max(max(s.peaks[:, 0]) for s in pm.spectra)
+
+    res = sample_peaks(pm, rtmin, rtmax, mzmin, mzmax, 1)
+    assert res is not None
+    assert res.shape == (1, 2)
+
+    res = sample_peaks(pm, rtmin, rtmax, mzmin, mzmax, 10000)
+    assert res is not None
+    assert res.shape == (10000, 2)
+
+    s0 = pm.spectra[0]
+    pm.spectra = [s0]
+    res = sample_peaks(pm, rtmin, rtmax, mzmin, mzmax, 10000)
+    assert res is not None
+    assert res.shape == (331, 2), res.shape
+    dist = np.linalg.norm(res[0:2,:] - pm.spectra[0].peaks[0:2,:])
+    assert dist == 0.0
+
+#test_sample_peaks()
 
 """
 @profile
