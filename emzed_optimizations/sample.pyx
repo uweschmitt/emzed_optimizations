@@ -8,12 +8,12 @@ from libc.stdlib cimport malloc, free
 @cython.wraparound(False)
 def chromatogram(pm, double mzmin, double mzmax, double rtmin, double rtmax, int msl):
     cdef list spectra = pm.spectra
-    cdef int i0, i1, i
+    cdef size_t i0, i1, i
     cdef double ii_sum
     cdef double mz
     cdef double rt
     cdef int msLevel
-    cdef int n
+    cdef size_t n
 
     cdef np.float32_t[:, :] peaks
 
@@ -65,7 +65,6 @@ def chromatogram(pm, double mzmin, double mzmax, double rtmin, double rtmax, int
     return rts[i0:i1], chromatogram[i0:i1]
 
 
-
 @cython.boundscheck(False)
 @cython.wraparound(False)
 def sample_image(pm, float rtmin, float rtmax, float mzmin, float mzmax, int w, int h):
@@ -73,12 +72,12 @@ def sample_image(pm, float rtmin, float rtmax, float mzmin, float mzmax, int w, 
     cdef np.ndarray img = np.zeros((h, w), dtype=np.float64)
     cdef np.float64_t[:, :] img_view = img
     cdef list spectra = pm.spectra
-    cdef int rt_bin
+    cdef size_t rt_bin
     cdef float rt, mz
-    cdef int n, i, j, mz_bin
+    cdef size_t n, i, j, mz_bin
     cdef np.float32_t[:, :] peaks
 
-    cdef int ns = len(spectra)
+    cdef size_t ns = len(spectra)
 
     # I tried splitting the loops, so that a first loop runs i up to rtmin, and a second loop
     # which runs to rtmax. I proceeded like this for the inner loop from mzmin to mzmax,
