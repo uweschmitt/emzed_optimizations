@@ -10,7 +10,7 @@ ext_modules = [
 ]
 
 setup(name="emzed_optimizations",
-      version="0.0.1",
+      version="0.1.0",
       author="Uwe Schmitt",
       author_email="mail@uweschmitt.info",
       description="particular optimizations for speeding up emzed",
