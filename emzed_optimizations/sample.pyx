@@ -71,8 +71,7 @@ def chromatogram(pm, double mzmin, double mzmax, double rtmin, double rtmax, int
 def sample_peaks(pm, float rtmin, float rtmax, float mzmin, float mzmax, size_t n_bins,
                  int ms_level=1):
 
-    cdef double * i_sums
-    cdef double * mz_i_sums
+    cdef double *i_sums, *mz_i_sums, *i_max
     cdef double mz, ii
 
     cdef list spectra
@@ -89,6 +88,11 @@ def sample_peaks(pm, float rtmin, float rtmax, float mzmin, float mzmax, size_t 
     mz_i_sums = <double * > calloc(sizeof(double), n_bins)
     if mz_i_sums == NULL:
         free(i_sums)
+        return None
+    i_max = <double * > calloc(sizeof(double), n_bins)
+    if i_max == NULL:
+        free(i_sums)
+        free(mz_i_sums)
         return None
 
     spectra = pm.spectra
@@ -117,6 +121,7 @@ def sample_peaks(pm, float rtmin, float rtmax, float mzmin, float mzmax, size_t 
                 ii = peaks[j, 1]
                 i_sums[mz_bin] += ii
                 mz_i_sums[mz_bin] += mz * ii
+                i_max[mz_bin] = max(i_max[mz_bin], ii)
 
     result = np.zeros((n_bins, 2), dtype=np.float32)
     peaks = result  # create view
@@ -126,11 +131,12 @@ def sample_peaks(pm, float rtmin, float rtmax, float mzmin, float mzmax, size_t 
         ii = i_sums[i]
         if ii > 0:
             peaks[j, 0] = mz_i_sums[i] / ii
-            peaks[j, 1] = ii
+            peaks[j, 1] = i_max[i]
             j += 1
 
-    free(i_sums)
+    free(i_max)
     free(mz_i_sums)
+    free(i_sums)
     return result[:j, :]
 
 
