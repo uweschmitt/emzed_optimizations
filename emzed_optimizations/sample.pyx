@@ -7,7 +7,7 @@ from libc.stdlib cimport malloc, free, calloc
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def chromatogram(pm, double mzmin, double mzmax, double rtmin, double rtmax, int msl):
+def chromatogram(pm, double mzmin, double mzmax, double rtmin, double rtmax, int ms_level=1):
     cdef list spectra = pm.spectra
     cdef size_t i0, i1, i
     cdef double ii_sum
@@ -35,7 +35,7 @@ def chromatogram(pm, double mzmin, double mzmax, double rtmin, double rtmax, int
         s = spectra[i0]
         rt = s.rt
         msLevel = s.msLevel
-        if msLevel == msl and rt >= rtmin:
+        if msLevel == ms_level and rt >= rtmin:
             break
 
     # i1 is index of current spectrum of matching ms level:
@@ -47,7 +47,7 @@ def chromatogram(pm, double mzmin, double mzmax, double rtmin, double rtmax, int
         rt = spec.rt
         if rt > rtmax:
             break
-        if msLevel != msl:
+        if msLevel != ms_level:
             continue
 
         rts_view[i1] = rt
@@ -68,7 +68,8 @@ def chromatogram(pm, double mzmin, double mzmax, double rtmin, double rtmax, int
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def sample_peaks(pm, float rtmin, float rtmax, float mzmin, float mzmax, size_t n_bins):
+def sample_peaks(pm, float rtmin, float rtmax, float mzmin, float mzmax, size_t n_bins,
+                 int ms_level=1):
 
     cdef double * i_sums
     cdef double * mz_i_sums
@@ -105,7 +106,7 @@ def sample_peaks(pm, float rtmin, float rtmax, float mzmin, float mzmax, size_t 
             continue
         if rt > rtmax:
             break
-        if spec.msLevel != 1:
+        if spec.msLevel != ms_level:
             continue
         peaks = spec.peaks
         n = peaks.shape[0]
@@ -135,7 +136,8 @@ def sample_peaks(pm, float rtmin, float rtmax, float mzmin, float mzmax, size_t 
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def sample_image(pm, float rtmin, float rtmax, float mzmin, float mzmax, size_t w, size_t h):
+def sample_image(pm, float rtmin, float rtmax, float mzmin, float mzmax, size_t w, size_t h,
+                 ms_level=1):
 
     cdef np.ndarray img = np.zeros((h, w), dtype=np.float64)
     cdef np.float64_t[:, :] img_view = img
@@ -159,7 +161,7 @@ def sample_image(pm, float rtmin, float rtmax, float mzmin, float mzmax, size_t 
             continue
         if rt > rtmax:
             break
-        if spec.msLevel != 1:
+        if spec.msLevel != ms_level:
             continue
         rt_bin = int((rt - rtmin) / (rtmax - rtmin) * (w - 1))
         peaks = spec.peaks
