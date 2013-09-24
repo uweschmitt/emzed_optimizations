@@ -2,8 +2,10 @@ import numpy as np
 from emzed_optimizations import chromatogram, sample_image, sample_peaks
 import cPickle
 
+do_profile = False
 try:
     profile
+    do_profile = True
 except:
     profile = lambda x: x
 
@@ -32,6 +34,7 @@ def _load():
     return pm
 
 
+@profile
 def test_chromatogram():
 
     pm = _load()
@@ -110,6 +113,7 @@ def py_sample(pm, rtmin, rtmax, mzmin, mzmax, w, h):
     return img
 
 
+@profile
 def test_sample():
     pm = _load()
 
@@ -145,46 +149,11 @@ def test_sample_peaks():
     res = sample_peaks(pm, rtmin, rtmax, mzmin, mzmax, 10000)
     assert res is not None
     assert res.shape == (331, 2), res.shape
-    dist = np.linalg.norm(res[0:2,:] - pm.spectra[0].peaks[0:2,:])
+    dist = np.linalg.norm(res[0:2, :] - pm.spectra[0].peaks[0:2, :])
     assert dist == 0.0
 
-#test_sample_peaks()
 
-"""
-@profile
-def sample_mz_python():
-    pm = _load()
-    rtmin = pm.spectra[0].rt
-    rtmax = pm.spectra[-1].rt
-    mzmin = min(min(s.peaks[:, 0]) for s in pm.spectra)
-    mzmax = max(max(s.peaks[:, 0]) for s in pm.spectra)
-
-    spectra = pm.spectra
-    spectra = [s for s in spectra if s.msLevel == 1]
-    spectra = [ s for s in spectra if rtmin <= s.rt ]
-    spectra = [ s for s in spectra if rtmax >= s.rt ]
-
-    for s in spectra:
-        mzs = s.peaks[:,0]
-        imin = mzs.searchsorted(mzmin)
-        imax = mzs.searchsorted(mzmax, side='right')
-        s.peaks = s.peaks[imin:imax]
-
-    return np.vstack([s.peaks for s in spectra])
-
-@profile
-def test_sample_mz_peaks():
-    pm = _load()
-    rtmin = pm.spectra[0].rt
-    rtmax = pm.spectra[-1].rt
-    mzmin = min(min(s.peaks[:, 0]) for s in pm.spectra)
-    mzmax = max(max(s.peaks[:, 0]) for s in pm.spectra)
-
-    all_peaks = sample_mz_peaks(pm, rtmin, rtmax, mzmin, mzmax)
-    assert all_peaks.shape == (798730, 2), all_peaks.shape
-
-sample_mz_python()
-test_sample_mz_peaks()
-
-"""
-
+if do_profile:
+    test_sample_peaks()
+    test_sample()
+    test_chromatogram()
