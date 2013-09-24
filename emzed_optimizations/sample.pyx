@@ -68,7 +68,7 @@ def chromatogram(pm, double mzmin, double mzmax, double rtmin, double rtmax, int
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def sample_peaks(pm, float rtmin, float rtmax, float mzmin, float mzmax, size_t n_bins,
+def sample_peaks(pm, double rtmin, double rtmax, double mzmin, double mzmax, size_t n_bins,
                  int ms_level=1):
 
     cdef double *i_sums, *mz_i_sums, *i_max
@@ -142,7 +142,7 @@ def sample_peaks(pm, float rtmin, float rtmax, float mzmin, float mzmax, size_t 
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def sample_image(pm, float rtmin, float rtmax, float mzmin, float mzmax, size_t w, size_t h,
+def sample_image(pm, double rtmin, double rtmax, double mzmin, double mzmax, size_t w, size_t h,
                  ms_level=1):
 
     cdef np.ndarray img = np.zeros((h, w), dtype=np.float64)
