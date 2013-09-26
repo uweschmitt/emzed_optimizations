@@ -68,8 +68,12 @@ def chromatogram(pm, double mzmin, double mzmax, double rtmin, double rtmax, int
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
+@cython.cdivision(True)
 def sample_peaks(pm, double rtmin, double rtmax, double mzmin, double mzmax, size_t n_bins,
                  int ms_level=1):
+
+    # avoid zero division later
+    assert mzmax > mzmin
 
     cdef double *i_sums, *mz_i_sums, *i_max
     cdef double mz, ii
@@ -142,8 +146,13 @@ def sample_peaks(pm, double rtmin, double rtmax, double mzmin, double mzmax, siz
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
+@cython.cdivision(True)
 def sample_image(pm, double rtmin, double rtmax, double mzmin, double mzmax, size_t w, size_t h,
                  ms_level=1):
+
+    # avoid zero division later
+    assert mzmax > mzmin
+    assert rtmax > rtmin
 
     cdef np.ndarray img = np.zeros((h, w), dtype=np.float64)
     cdef np.float64_t[:, :] img_view = img
