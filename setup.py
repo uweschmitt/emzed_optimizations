@@ -9,8 +9,14 @@ ext_modules = [
               )
 ]
 
+version = "0.3.3"
+version_tuple = tuple(map(int, version.split(".")))
+
+with open("emzed_optimizations/version.py", "w") as fp:
+    fp.write("version = %r\n" % (version_tuple,))
+
 setup(name="emzed_optimizations",
-      version="0.3.1",
+      version=version,
       author="Uwe Schmitt",
       author_email="mail@uweschmitt.info",
       description="particular optimizations for speeding up emzed",
