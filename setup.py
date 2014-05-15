@@ -9,11 +9,7 @@ ext_modules = [
               )
 ]
 
-version = "0.3.3"
-version_tuple = tuple(map(int, version.split(".")))
-
-with open("emzed_optimizations/version.py", "w") as fp:
-    fp.write("version = %r\n" % (version_tuple,))
+version = "0.3.4"
 
 setup(name="emzed_optimizations",
       version=version,
