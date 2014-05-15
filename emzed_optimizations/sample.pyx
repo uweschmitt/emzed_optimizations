@@ -33,8 +33,8 @@ def chromatogram(pm, double mzmin, double mzmax, double rtmin, double rtmax, int
     i0 = 0
     for i0 in range(n):
         s = spectra[i0]
-        rt = s.rt
-        msLevel = s.msLevel
+        rt = s.rt             # avoids rich python comparision in if statement
+        msLevel = s.msLevel   # avoids rich python comparision in if statement
         if msLevel == ms_level and rt >= rtmin:
             break
 
@@ -43,8 +43,8 @@ def chromatogram(pm, double mzmin, double mzmax, double rtmin, double rtmax, int
     i1 = i0
     for i in range(i0, n):
         spec = spectra[i]
-        msLevel = spec.msLevel
-        rt = spec.rt
+        msLevel = spec.msLevel # avoids rich python comparision in if statement below
+        rt = spec.rt           # avoids rich python comparision in if statement below
         if rt > rtmax:
             break
         if msLevel != ms_level:
@@ -77,6 +77,7 @@ def sample_peaks(pm, double rtmin, double rtmax, double mzmin, double mzmax, siz
 
     cdef double *i_sums, *mz_i_sums, *i_max
     cdef double mz, ii
+    cdef int msLevel
 
     cdef list spectra
     cdef np.float32_t[:, :] peaks
@@ -109,12 +110,13 @@ def sample_peaks(pm, double rtmin, double rtmax, double mzmin, double mzmax, siz
 
     for i in range(ns):
         spec = spectra[i]
-        rt = spec.rt
+        rt = spec.rt   # avoids rich python comparision in if statement below
         if rt < rtmin:
             continue
         if rt > rtmax:
             break
-        if spec.msLevel != ms_level:
+        msLevel = spec.msLevel   # avoids rich python comparision in if statement below
+        if msLevel != ms_level:
             continue
         peaks = spec.peaks
         n = peaks.shape[0]
@@ -159,6 +161,7 @@ def sample_image(pm, double rtmin, double rtmax, double mzmin, double mzmax, siz
     cdef list spectra = pm.spectra
     cdef size_t rt_bin
     cdef float rt, mz
+    cdef int msLevel
     cdef size_t n, i, j, mz_bin
     cdef np.float32_t[:, :] peaks
 
@@ -171,12 +174,13 @@ def sample_image(pm, double rtmin, double rtmax, double mzmin, double mzmax, siz
 
     for i in range(ns):
         spec = spectra[i]
-        rt = spec.rt
+        rt = spec.rt             # avoids rich python comparision in if statement below
         if rt < rtmin:
             continue
         if rt > rtmax:
             break
-        if spec.msLevel != ms_level:
+        msLevel = spec.msLevel   # avoids rich python comparision in if statement below
+        if msLevel != ms_level:
             continue
         rt_bin = int((rt - rtmin) / (rtmax - rtmin) * (w - 1))
         peaks = spec.peaks
