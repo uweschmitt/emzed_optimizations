@@ -9,12 +9,12 @@ from libc.stdlib cimport malloc, free, calloc
 @cython.wraparound(False)
 def chromatogram(pm, double mzmin, double mzmax, double rtmin, double rtmax, int ms_level=1):
     cdef list spectra = pm.spectra
-    cdef size_t i0, i1, i
+    cdef size_t i0, i
     cdef double ii_sum
     cdef double mz
     cdef double rt
     cdef int msLevel
-    cdef size_t n
+    cdef size_t n, n1
 
     cdef np.float32_t[:, :] peaks
 
@@ -29,41 +29,26 @@ def chromatogram(pm, double mzmin, double mzmax, double rtmin, double rtmax, int
     cdef np.ndarray rts = np.zeros((n), dtype=np.float64)
     cdef np.float64_t[:] rts_view = rts
 
-    # find starting index i0
     i0 = 0
-    for i0 in range(n):
-        s = spectra[i0]
+    for i in range(n):
+        s = spectra[i]
         rt = s.rt             # avoids rich python comparision in if statement
         msLevel = s.msLevel   # avoids rich python comparision in if statement
-        if msLevel == ms_level and rt >= rtmin:
-            break
-
-    # i1 is index of current spectrum of matching ms level:
-    # i  counts all spctra from i0 on
-    i1 = i0
-    for i in range(i0, n):
-        spec = spectra[i]
-        msLevel = spec.msLevel # avoids rich python comparision in if statement below
-        rt = spec.rt           # avoids rich python comparision in if statement below
-        if rt > rtmax:
-            break
-        if msLevel != ms_level:
-            continue
-
-        rts_view[i1] = rt
-        peaks = spec.peaks
-        n = peaks.shape[0]
-        ii_sum = 0.0
-        for j in range(n):
-            mz = peaks[j, 0]
-            if mzmin <= mz <= mzmax:
-                ii_sum += peaks[j, 1]
-        chromatogram_view[i1] = ii_sum
-        i1 += 1
+        if msLevel == ms_level and rtmin <= rt and rt <= rtmax:
+            rts_view[i0] = rt
+            peaks = s.peaks
+            n1 = peaks.shape[0]
+            ii_sum = 0.0
+            for j in range(n1):
+                mz = peaks[j, 0]
+                if mzmin <= mz and mz <= mzmax:
+                    ii_sum += peaks[j, 1]
+            chromatogram_view[i0] = ii_sum
+            i0 += 1
 
     # this slicing is not expensive compared to implemenit look which calulates
     # thie right sizes beforehand
-    return rts[i0:i1], chromatogram[i0:i1]
+    return rts[:i0], chromatogram[:i0]
 
 
 @cython.boundscheck(False)
