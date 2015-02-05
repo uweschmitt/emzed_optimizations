@@ -9,7 +9,7 @@ ext_modules = [
               )
 ]
 
-version = "0.3.6"
+version = "0.3.7"
 
 setup(name="emzed_optimizations",
       version=version,
