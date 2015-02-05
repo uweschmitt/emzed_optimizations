@@ -85,6 +85,10 @@ def test_chromatogram():
     assert abs(rts[1000] - 1003.81995) < 1e-5, rts[1000]
     assert abs(chromo[1000] - 3183594.05) < 1e-2, chromo[1000]
 
+    rts, chromo = chromatogram(pm, 0, 1000, rtmax + 10, rtmax + 20, 1)
+    assert len(rts) == 0
+    assert len(chromo) == 0
+
 
 def py_sample(pm, rtmin, rtmax, mzmin, mzmax, w, h):
     rtmin = float(rtmin)
