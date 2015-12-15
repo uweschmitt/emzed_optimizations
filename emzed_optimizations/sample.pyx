@@ -16,7 +16,7 @@ def chromatogram(pm, double mzmin, double mzmax, double rtmin, double rtmax, int
     cdef int msLevel
     cdef size_t n, n1
 
-    cdef np.float32_t[:, :] peaks
+    cdef np.float64_t[:, :] peaks
 
     n = len(spectra)
 
@@ -65,7 +65,7 @@ def sample_peaks(pm, double rtmin, double rtmax, double mzmin, double mzmax, siz
     cdef int msLevel
 
     cdef list spectra
-    cdef np.float32_t[:, :] peaks
+    cdef np.float64_t[:, :] peaks
 
     cdef size_t ns, n, i, j, mz_bin
     cdef double rt
@@ -114,7 +114,7 @@ def sample_peaks(pm, double rtmin, double rtmax, double mzmin, double mzmax, siz
                 mz_i_sums[mz_bin] += mz * ii
                 i_max[mz_bin] = max(i_max[mz_bin], ii)
 
-    result = np.zeros((n_bins, 2), dtype=np.float32)
+    result = np.zeros((n_bins, 2), dtype=np.float64)
     peaks = result  # create view
     i = 0
     j = 0
@@ -148,7 +148,7 @@ def sample_image(pm, double rtmin, double rtmax, double mzmin, double mzmax, siz
     cdef float rt, mz
     cdef int msLevel
     cdef size_t n, i, j, mz_bin
-    cdef np.float32_t[:, :] peaks
+    cdef np.float64_t[:, :] peaks
 
     cdef size_t ns = len(spectra)
 
