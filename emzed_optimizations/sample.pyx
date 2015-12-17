@@ -8,7 +8,7 @@ from libc.stdlib cimport malloc, free, calloc
 @cython.boundscheck(False)
 @cython.wraparound(False)
 def chromatogram(pm, double mzmin, double mzmax, double rtmin, double rtmax, int ms_level=1):
-    cdef list spectra = pm.spectra
+    cdef tuple spectra = pm.spectra
     cdef size_t i0, i
     cdef double ii_sum
     cdef double mz
@@ -64,7 +64,7 @@ def sample_peaks(pm, double rtmin, double rtmax, double mzmin, double mzmax, siz
     cdef double mz, ii
     cdef int msLevel
 
-    cdef list spectra
+    cdef tuple spectra = pm.spectra
     cdef np.float64_t[:, :] peaks
 
     cdef size_t ns, n, i, j, mz_bin
@@ -85,7 +85,6 @@ def sample_peaks(pm, double rtmin, double rtmax, double mzmin, double mzmax, siz
         free(mz_i_sums)
         return None
 
-    spectra = pm.spectra
     ns = len(spectra)
 
     # I tried splitting the loops, so that a first loop runs i up to rtmin, and a second loop
@@ -143,7 +142,7 @@ def sample_image(pm, double rtmin, double rtmax, double mzmin, double mzmax, siz
 
     cdef np.ndarray img = np.zeros((h, w), dtype=np.float64)
     cdef np.float64_t[:, :] img_view = img
-    cdef list spectra = pm.spectra
+    cdef tuple spectra = pm.spectra
     cdef size_t rt_bin
     cdef float rt, mz
     cdef int msLevel
