@@ -54,6 +54,77 @@ def chromatogram(pm, double mzmin, double mzmax, double rtmin, double rtmax, int
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.cdivision(True)
+def sample_peaks_from_lists(list mz_list, list ii_list, double mzmin, double mzmax, size_t n_bins):
+
+    # avoid zero division later
+    assert mzmax > mzmin
+
+    cdef double *i_sums, *mz_i_sums, *i_max
+    cdef double mz, ii
+    cdef int msLevel
+
+    cdef np.float64_t[:, :] peaks
+    cdef np.float64_t[:] mzs
+    cdef np.float32_t[:] iis
+
+    cdef size_t ns, n, i, j, mz_bin
+    cdef double rt
+
+    cdef np.ndarray result
+
+    i_sums = <double * > calloc(sizeof(double), n_bins)
+    if i_sums == NULL:
+        return None
+    mz_i_sums = <double * > calloc(sizeof(double), n_bins)
+    if mz_i_sums == NULL:
+        free(i_sums)
+        return None
+    i_max = <double * > calloc(sizeof(double), n_bins)
+    if i_max == NULL:
+        free(i_sums)
+        free(mz_i_sums)
+        return None
+
+    ns = len(mz_list)
+
+    # I tried splitting the loops, so that a first loop runs i up to rtmin, and a second loop
+    # which runs to rtmax. I proceeded like this for the inner loop from mzmin to mzmax,
+    # but this did not result in a performance gain, but the code got more complex, so I
+    # just use for-loops below with full range testing in the loop bodies
+
+    for i in range(ns):
+        mzs = mz_list[i]
+        iis = ii_list[i]
+        n = mzs.shape[0]
+        for j in range(n):
+            mz = mzs[j]
+            if mzmin <= mz and mz <= mzmax:
+                mz_bin = int((mz - mzmin) / (mzmax - mzmin) * (n_bins - 1))
+                ii = iis[j]
+                i_sums[mz_bin] += ii
+                mz_i_sums[mz_bin] += mz * ii
+                i_max[mz_bin] = max(i_max[mz_bin], ii)
+
+    result = np.zeros((n_bins, 2), dtype=np.float64)
+    peaks = result  # create view
+    i = 0
+    j = 0
+    for i in range(n_bins):
+        ii = i_sums[i]
+        if ii > 0:
+            peaks[j, 0] = mz_i_sums[i] / ii
+            peaks[j, 1] = i_max[i]
+            j += 1
+
+    free(i_max)
+    free(mz_i_sums)
+    free(i_sums)
+    return result[:j, :]
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.cdivision(True)
 def sample_peaks(pm, double rtmin, double rtmax, double mzmin, double mzmax, size_t n_bins,
                  int ms_level=1):
 
