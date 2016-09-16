@@ -59,7 +59,9 @@ def sample_peaks_from_lists(list mz_list, list ii_list, double mzmin, double mzm
     # avoid zero division later
     assert mzmax > mzmin
 
-    cdef double *i_sums, *mz_i_sums, *i_max
+    cdef double *i_sums
+    cdef double *mz_i_sums
+    cdef double *i_max
     cdef double mz, ii
     cdef int msLevel
 
@@ -131,7 +133,9 @@ def sample_peaks(pm, double rtmin, double rtmax, double mzmin, double mzmax, siz
     # avoid zero division later
     assert mzmax > mzmin
 
-    cdef double *i_sums, *mz_i_sums, *i_max
+    cdef double *i_sums
+    cdef double *mz_i_sums
+    cdef double *i_max
     cdef double mz, ii
     cdef int msLevel
 
